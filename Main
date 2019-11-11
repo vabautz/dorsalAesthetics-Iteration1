@@ -1,0 +1,229 @@
+//------------------------------------------------------------------------------------GLOBALS
+Instructions theInstructions = new Instructions(0, 100, 255); 
+boolean instructionsDone = false;
+int responseDone = 0;
+
+int fractalCounter = 1; //counts up to 5 fractals 
+int frameCounter = 0; //counts up to 300 (10seconds at 30fps)
+int state = 1;
+int instructionsNum = 1;
+int questionNum = 1;
+//int answer = 0;
+
+//create fractals
+/*real fractals: [for final - not used for current demo]
+Fractal fractal1 = new Fractal(0, 0);
+Fractal fractal2 = new Fractal(0, 1);
+Fractal fractal3 = new Fractal(0, 2);
+
+Fractal fractal4 = new Fractal(1, 0);
+Fractal fractal5 = new Fractal(1, 1);
+Fractal fractal6 = new Fractal(1, 2);
+
+Fractal fractal7 = new Fractal(2, 0);
+Fractal fractal8 = new Fractal(2, 1);
+Fractal fractal9 = new Fractal(2, 2);
+*/
+
+//demo fractals:
+Fractal fractal1 = new Fractal(0, 1);
+Fractal fractal2 = new Fractal(1, 2);
+Fractal fractal3 = new Fractal(2, 1);
+
+
+//create buttons (for answers)
+UnpressedButton uButton1 = new UnpressedButton(640, 1080);
+UnpressedButton uButton2 = new UnpressedButton(1280, 1080);
+UnpressedButton uButton3 = new UnpressedButton(1920, 1080);
+UnpressedButton uButton4 = new UnpressedButton(2560, 1080);
+UnpressedButton uButton5 = new UnpressedButton(3200, 1080);
+
+PressedButton pButton1 = new PressedButton(640, 1080);
+PressedButton pButton2 = new PressedButton(1280, 1080);
+PressedButton pButton3 = new PressedButton(1920, 1080);
+PressedButton pButton4 = new PressedButton(2560, 1080);
+PressedButton pButton5 = new PressedButton(3200, 1080);
+
+
+
+
+
+//------------------------------------------------------------------------------------SETUP
+void setup() {
+  fullScreen();
+  background(0);
+  frameRate(60);
+  
+  
+}
+
+float [] fractalLocations = {3840, 2160}; //this is the width/height of my screen
+int[] importantData = {state, fractalCounter, frameCounter, responseDone, questionNum}; //used to pass important info between states and methods
+int finalCount = 0; //used to display final message for x frames
+
+
+//-------------------------------------------------------------------------------------DRAW
+void draw() {
+  
+  if (importantData[0] == 1) { //first state (INSTRUCTIONS)
+    noCursor();
+    importantData = instructionPhase(theInstructions, instructionsNum, instructionsDone, importantData);
+    delay(3000); //5sec delay (3secs for demo video)
+    instructionsNum ++;
+  }
+
+  if (importantData[0] == 2) {  //second state (FRACTALS)
+    noCursor();
+    importantData[3] = 0; //reset responseDone for next fractal
+    importantData = fractalPhase(importantData, fractalLocations);
+  }
+  
+  if (importantData[0] == 3) { //third state (QUESTIONS)
+    cursor(ARROW);
+    importantData = responsePhase(importantData);
+    
+  }
+  
+  if (importantData[0] == 4) {  //fourth state (FINAL SCREEN)
+    noCursor();
+    finalePhase();
+    finalCount++;
+    if (finalCount == 300) {
+      background(0);
+      noLoop();
+    }
+  }
+}
+
+
+
+
+//--------------------------------------------------------------------------------------METHODS
+
+//INSTRUCTION PHASE (STATE 1)
+int[] instructionPhase(Instructions theInstructions, int instructionsNum, boolean instructionsDone, int[] importantData) {
+  theInstructions.display(instructionsNum);
+  instructionsDone = theInstructions.check(instructionsNum, instructionsDone);
+  if (instructionsDone == true) {
+    importantData[0] = 2; //end of instructions
+    return importantData;
+  } else {
+    importantData[0] = 1;
+    return importantData;
+  }
+}
+
+
+//FRACTALPHASE (STATE 2)
+int[] fractalPhase(int[] importantData, float[] fractalLocations) {
+  importantData[3] = 0; //reset responseDone for next fractal
+  /*if (importantData[2] == 0) {        <-- this doesn't work at the moment [still need to figure this out]
+    delay(2000);
+    textAlign(CENTER, CENTER);
+    textSize(100);
+    stroke(255);
+    String intro = "Fractal: ";
+    text(intro, width/2, height/2);
+    delay(2000);
+  } */
+
+  if (importantData[1] == 1) { //if fractalCounter == 1...
+    fractal1.display(fractalLocations); //display first fractal...
+    fractalLocations = fractal1.update(fractalLocations); //...& move
+    importantData[2]++; //update frame
+  }
+
+  if (importantData[1] == 2) {
+    fractal2.display(fractalLocations);
+    fractalLocations = fractal2.update(fractalLocations); //motion
+    importantData[2]++;
+  }
+
+  if (importantData[1] == 3) {
+    fractal3.display(fractalLocations);
+    fractalLocations = fractal3.update(fractalLocations); //motion
+    importantData[2]++;
+  }
+/*  NOT USED FOR DEMO:
+  if (importantData[1] == 4) {
+    fractal4.display(fractalLocations);
+    fractalLocations = fractal4.update(fractalLocations); //motion
+    importantData[2]++;
+  }
+
+  if (importantData[1] == 5) {
+    fractal5.display(fractalLocations);
+    fractalLocations = fractal5.update(fractalLocations); //motion
+    importantData[2]++;
+  }
+
+  if (importantData[1] == 6) {
+    fractal6.display(fractalLocations);
+    fractalLocations = fractal6.update(fractalLocations); //motion
+    importantData[2]++;
+  }
+
+  if (importantData[1] == 7) {
+    fractal7.display(fractalLocations);
+    fractalLocations = fractal7.update(fractalLocations); //motion
+    importantData[2]++;
+  }
+
+  if (importantData[1] == 8) {
+    fractal8.display(fractalLocations);
+    fractalLocations = fractal8.update(fractalLocations); //motion
+    importantData[2]++;
+  }
+
+  if (importantData[1] == 9) {
+    fractal9.display(fractalLocations);
+    fractalLocations = fractal9.update(fractalLocations); //motion
+    importantData[2]++;
+  }
+  */
+
+
+  if (importantData[2] == 100) { //usually 300 but adjusted to 100 for demo video
+    importantData[0] = 3; //if last frame is reached, move on to response display (state 3)
+    
+    return importantData;
+  } else {
+    importantData[0] = 2; //else: keep current state
+    return importantData;
+  }
+}
+
+//RESPONSEPHASE (STATE 3)
+int[] responsePhase(int[] importantData) {
+  fractalLocations[0] = 3840; //reset location for next fractal
+  fractalLocations[1] = 2160;
+  importantData[2] = 0; //reset frameCounter
+  Response theResponse = new Response(0, 100, 255); 
+
+  theResponse.display(importantData[4]); //display response screen
+  importantData = theResponse.getAnswer(importantData); //getAnswer from participant on rating scale
+  importantData = theResponse.check(importantData); //check if all questions/scales have been displayed (currently there is only 1 question)
+ 
+  if (importantData[3] == 0) { //if reponseDone == false...
+    importantData[0] = 3; //state remains the same [important if more questions/scales will be added in the future]
+    return importantData;
+  }
+  if (importantData[3] == 1 && importantData[1] == 4) { //if responseDone == true && all fractals are displayed...     (there are a total of 9 fractals - for the demo only 3 will be displayed)
+    importantData[0] = 4; //...move to final phase/state
+    return importantData;
+  } else {
+    importantData[0] = 2; // else: state = 2 (fractalphase to display next fractal &...
+    importantData[4] = 1; //... questionNum is reset to 1
+    return importantData;
+  }
+}
+
+
+
+//FINALEPHASE (STATE 4)
+void finalePhase() {
+  Finale theFinale = new Finale(0, 100, 255); 
+  theFinale.display();
+  //theFinale.update();
+  
+}
