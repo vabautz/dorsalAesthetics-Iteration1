@@ -1,0 +1,106 @@
+class Fractal {
+  int shapeType; // 0 = ellipse, 1 = rect, 2 = both
+  int movementType; //0 = zoom, 1 = pan right, 2 = pan up
+  int fractalRValue;
+  int fractalGValue;
+  int fractalBValue;
+  color backgroundColor;
+
+
+
+  //-----------------------------------------------------------------------------------------CONSTRUCTOR  
+  Fractal(int tempShapeType, int tempMovementType, int tempFractalRValue, int tempFractalGValue, int tempFractalBValue, color tempBackgroundColor) {
+    shapeType = tempShapeType;
+    movementType = tempMovementType;
+    fractalRValue = tempFractalRValue;
+    fractalGValue = tempFractalGValue;
+    fractalBValue = tempFractalBValue;
+    backgroundColor = tempBackgroundColor;
+  }
+
+  //alternative constructor: (OVERLOADING)
+  Fractal(int tempShapeType, int tempMovementType) {
+    shapeType = tempShapeType;
+    movementType = tempMovementType;
+    fractalRValue = (int)random(150, 255);
+    fractalGValue = (int)random(150, 255);
+    fractalBValue = (int)random(150, 255);
+   
+    backgroundColor = (0); //default backfround if not specified = black
+  }
+
+  //-------------------------------------------------------------------------------------------METHODS
+  void display(float[] fractalLocations) { //draw fractal pattern based on specified geometric shape
+    float strokeSize = 10;
+    background(backgroundColor);
+    noFill();
+    stroke(this.fractalRValue, this.fractalGValue, this.fractalBValue);
+    
+    if (this.shapeType == 0) { //ellipse
+      ellipseFractal((fractalLocations[0]/2), (fractalLocations[1]/2), 4000, strokeSize);
+    }
+    
+    if (this.shapeType == 1) { //rect
+      rectMode(CENTER);
+      rectFractal(fractalLocations[0]/2, fractalLocations[1]/2, 4000, strokeSize);
+    }
+    
+    if (this.shapeType == 2) { //ellipse + rect
+    rectMode(CENTER);
+      duoFractal(fractalLocations[0]/2, fractalLocations[1]/2, fractalLocations[0]/2, fractalLocations[1]/2, 3000, 4000, strokeSize);
+    }
+  }
+
+
+  float[] update(float[] fractalLocations) { //update based on specified movement
+    if (this.movementType == 0) { //zoom
+      fractalLocations[0] = fractalLocations[0] + 5; //(still a camera pan to the right at the moment -- still needs to be changed)
+      fractalLocations[1] = fractalLocations[1];
+    }
+    if (this.movementType == 1) { //pan right
+      fractalLocations[0] = fractalLocations[0] + 10;
+      fractalLocations[1] = fractalLocations[1];
+    }
+    if (this.movementType == 2) { //pan up
+      fractalLocations[0] = fractalLocations[0];
+      fractalLocations[1] = fractalLocations[1] + 10;
+    }
+    return fractalLocations;
+  }
+}
+
+void ellipseFractal(float x, float y, float radius, float strokeSize) {
+  noFill();
+  strokeWeight(strokeSize);
+  ellipse(x, y, radius, radius);
+  if (radius > 400) { //recursive call:
+    ellipseFractal(x + radius/2.5, y, radius/2.5, strokeSize*0.75);   
+    ellipseFractal(x - radius/2.5, y, radius/2.5, strokeSize*0.75);
+    ellipseFractal(x, y + radius/2.5, radius/2.5, strokeSize*0.75);
+    ellipseFractal(x, y - radius/2.5, radius/2.5, strokeSize*0.75);
+  }
+}
+
+void rectFractal(float x, float y, float radius, float strokeSize) {
+  noFill();
+  rect(x, y, radius, radius);
+  if (radius > 300) { //recursive call:
+    rectFractal(x + radius/2, y, radius/2, strokeSize*0.75);
+    rectFractal(x - radius/2, y, radius/2, strokeSize*0.75);
+    rectFractal(x, y + radius/2, radius/2, strokeSize*0.75);
+    rectFractal(x, y - radius/2, radius/2, strokeSize*0.75);
+  }
+}
+
+
+void duoFractal(float x1, float y1,float x2, float y2, float radius1, float radius2, float strokeSize) {
+  noFill();
+  ellipse(x1, y1, radius1, radius1);
+  rect(x2, y2, radius2, radius2);
+  if (radius1 > 200) { //recursive call:
+    duoFractal(x1 + radius1/2, y1, x2 + radius2/2, y2, radius1/2, radius2/2, strokeSize*0.75);
+    duoFractal(x1 - radius1/2, y1, x2 - radius2/2, y2, radius1/2, radius2/2, strokeSize*0.75);
+    duoFractal(x1, y1 + radius1/2, x2, y2 + radius2/2, radius1/2, radius2/2, strokeSize*0.75);
+    duoFractal(x1, y1 - radius1/2, x2, y2 - radius2/2, radius1/2, radius2/2, strokeSize*0.75);
+  }
+}
